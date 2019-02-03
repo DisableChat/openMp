@@ -13,7 +13,7 @@ void test()
     cout << "Hello from thread " << omp_get_thread_num() << endl;
     cout << "This is Wes Ryder's first parallel program" << endl;
     cout << "There are currently "
-    <<  omp_get_num_threads() <<  " threads running" << endl;
+    <<  omp_get_num_threads() <<  " threads running\n" << endl;
   }
 }
 
