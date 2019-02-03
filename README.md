@@ -1,0 +1,2 @@
+# openMp
+openMp intro
