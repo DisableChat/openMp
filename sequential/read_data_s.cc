@@ -73,78 +73,96 @@ vector<vector<int> > read_M(istream &in) {
 }
 
 
-int get_vector_LR(vector<vector<int> > &M, int row, int column, int q)
-{
-  return(M[column][row]%q);
-}
-
-int get_vector_UD(vector<vector<int> > &M, int row, int column, int q)
+//******************************************************************************
+// Function:      get_vector()
+// Parameters:    vector<vector<int> >
+//                int row
+//                int column
+//                int q, modulus value
+// Return value:  that value%q at given index
+// Purpose:       to retrieve that value at specified grid location
+//******************************************************************************
+int get_vector(vector<vector<int> > &M, int row, int column, int q)
 {
   return(M[row][column]%q);
 }
 
+//******************************************************************************
+// Function:      get_vector_Diag()
+// Parameters:    vector<vector<int> >
+//                int row
+//                int column
+//                int q, modulus value
+// Return value:  that value%q at given index
+// Purpose:       to retrieve that value at specified grid location
+//******************************************************************************
 int get_vector_Diag(vector<vector<int> > &M, int row, int column, int q)
 {
   return(M[row][column]%q);
 }
 
+//******************************************************************************
+// Function:      calculate_mod_product
+// Parameters:    vector<vector<int> >
+//                int max
+//                int num
+//                int q, modulus value
+// Return value:  max%q
+// Purpose:       to return the the product of two ints modded by q
+//******************************************************************************
 int calculate_mod_product(int max, int num, int q)
 {
     num = num%q;
     max = (max*num)%q;
-    return max;
+    return max%q;
 }
+
+//******************************************************************************
+// Function:      determine_max
+// Parameters:    int max
+//                int val
+// Return value:  max
+// Purpose:       to update max value if nessary
+//******************************************************************************
 int determine_max(int max, int val)
 {
   if(max <= val)
   {
-    new_MAX = val;
     max = val;
   }
   else
   {
     max = max;
   }
-  if (new_MAX <= max){
-    new_MAX = max;
-  }
   return max;
-}
-
-int get_diag_end_loc(vector<vector<int> > &M, int m)
-{
-  int index;
-  index = M.size() - m;
-  return index;
 }
 
 //******************************************************************************
 // Function:      check_LR(vector<vector<int> > M, int m, int q, int index)
 // Parameters:    vector<vector<int>>
-//                int m, int q, int index
-// Return value:
+//                int m, which is number of numbers to be multiplied
+//                int q, which is the modulus
+// Return value:  max product
 // Purpose:       to check values right of grid
 //******************************************************************************
-int check_LR(vector<vector<int> > &M, int m, int q, int index)
+int check_LR(vector<vector<int> > &M, int m, int q)
 {
   int tmp_LR = 0;
-  int ver    = 0;
   int max    = 1;
   int max1   = 1;
 
-  int size = M.size() - m;
-
-  for (int i = 0; i < size + 1;  i++)
+  for(int z = 0; z < M.size(); z++)
   {
-    for(int k = 0; k < m; k++)
+    for (int i = 0; i < M.size() - m + 1 ;  i++)
     {
-      tmp_LR = get_vector_LR(M, ver, index, q);
-      max1 = calculate_mod_product(max1, tmp_LR, q);
+      for(int k = 0; k < m ; k++)
+      {
+        tmp_LR = get_vector(M, z, i + k, q);
+        max1 = calculate_mod_product(max1, tmp_LR, q);
+      }
       max = determine_max(max, max1);
-      ver++;
+      max1 = 1;
     }
-    ver = ver - m + 1;
-    max1 = 1;
   }
   return max;
 }
@@ -152,31 +170,29 @@ int check_LR(vector<vector<int> > &M, int m, int q, int index)
 //******************************************************************************
 // Function:      check_LR(vector<vector<int> > M, int m, int q, int index)
 // Parameters:    vector<vector<int>>
-//                int m, int q, int index
-// Return value:
+//                int m, which is number of numbers to be multiplied
+//                int q, which is the modulus
+// Return value:  max product
 // Purpose:       to check values downward of grid
 //******************************************************************************
-int check_UD(vector<vector<int> > &M, int m, int q, int index)
+int check_UD(vector<vector<int> > &M, int m, int q)
 {
   int tmp_UD = 0;
-  int ver    = 0;
   int max    = 1;
   int max1   = 1;
 
-  int size = M.size() - m;
-
-  for (int i = 0; i < size + 1 ;  i++)
+  for(int z = 0; z < M.size(); z++)
   {
-    for(int k = 0; k < m; k++)
+    for (int i = 0; i < M.size() - m + 1;  i++)
     {
-
-      tmp_UD = get_vector_UD(M, ver, index, q);
-      max1 = calculate_mod_product(max1, tmp_UD, q);
+      for(int k = 0; k < m; k++)
+      {
+        tmp_UD = get_vector(M, i + k, z, q);
+        max1 = calculate_mod_product(max1, tmp_UD, q);
+      }
       max = determine_max(max, max1);
-      ver++;
+      max1 = 1;
     }
-    ver = ver - m + 1;
-    max1 = 1;
   }
   return max;
 }
@@ -186,28 +202,30 @@ int check_UD(vector<vector<int> > &M, int m, int q, int index)
 // Function:      check_diag_LR_Bottom(vector<vector<int> > M, int m, int q,
 //                int num of times, int starting_loc)
 // Parameters:    vector<vector<int>>
-//                int m, int q, int num of times, in start loc
-// Return value:
+//                int m, which is number of numbers to be multiplied
+//                int q, which is the modulus
+// Return value:  max product
 // Purpose:       to check values of the grid left to right (bottom half of grid)
 //******************************************************************************
-int check_diag_LR_Bottom(vector<vector<int> > &M, int m, int q, int num_of_times, int starting_loc)
+int check_diag_LR_Bottom(vector<vector<int> > &M, int m, int q)
 {
-  int tmp_size = M.size();
   int tmp_Diag_LR = 0;
   int LR_Bottom_Max = 1;
-  int ver         = 0;
   int max         = 0;
+  int bounds      = 0;
 
-  for(int i = 0; i < num_of_times; i++)
+  for(int z = 0; z < M.size()/2; z++)
   {
-    for(int k = 0; k < m; k++)
+    for(int i = 0; i < M.size() - m + 1 - z; i++)
     {
-      tmp_Diag_LR = get_vector_Diag(M, k + ver + starting_loc , k + ver, q);
-      LR_Bottom_Max = calculate_mod_product(LR_Bottom_Max, tmp_Diag_LR, q);
+      for(int k = 0; k < m; k++)
+      {
+        tmp_Diag_LR = get_vector_Diag(M, k + i  + z , k + i, q);
+        LR_Bottom_Max = calculate_mod_product(LR_Bottom_Max, tmp_Diag_LR, q);
+      }
       max = determine_max(max, LR_Bottom_Max);
+      LR_Bottom_Max = 1;
     }
-    ver++;
-    LR_Bottom_Max = 1;
   }
   return max;
 }
@@ -217,29 +235,30 @@ int check_diag_LR_Bottom(vector<vector<int> > &M, int m, int q, int num_of_times
 // Function:      check_diag_LR_Top(vector<vector<int> > M, int m, int q,
 //                int num of times, int starting_loc)
 // Parameters:    vector<vector<int>>
-//                int m, int q, int num of times, in start loc
-// Return value:
+//                int m, which is number of numbers to be multiplied
+//                int q, which is the modulus
+// Return value:  max product
 // Purpose:       to check values of the grid left to right (top half of grid)
 //******************************************************************************
-int check_diag_LR_Top(vector<vector<int> > &M, int m, int q, int num_of_times, int starting_loc)
+int check_diag_LR_Top(vector<vector<int> > &M, int m, int q)
 {
-  int tmp_size = M.size();
-  int tmp_Diag_LR_Top = 0;
+  int tmp_Diag_LR = 0;
   int LR_Top_Max = 1;
-  int ver         = 0;
   int max         = 0;
   int total       = 0;
 
-  for(int i = 0; i < num_of_times; i++)
+  for(int z = 0; z < M.size()/2; z++)
   {
-    for(int k = 0; k < m; k++)
+    for(int i = 0; i < M.size() - m + 1 - z; i++)
     {
-      tmp_Diag_LR_Top = get_vector_Diag(M, k + ver, k + ver + starting_loc, q);
-      LR_Top_Max = calculate_mod_product(LR_Top_Max, tmp_Diag_LR_Top, q);
+      for(int k = 0; k < m; k++)
+      {
+        tmp_Diag_LR = get_vector_Diag(M, k + i , k + i + z , q);
+        LR_Top_Max = calculate_mod_product(LR_Top_Max, tmp_Diag_LR, q);
+      }
       max = determine_max(max, LR_Top_Max);
+      LR_Top_Max = 1;
     }
-    ver++;
-    LR_Top_Max = 1;
   }
   return max;
 }
@@ -248,63 +267,62 @@ int check_diag_LR_Top(vector<vector<int> > &M, int m, int q, int num_of_times, i
 // Function:      check_diag_RL_Bottom(vector<vector<int> > M, int m, int q,
 //                int num of times, int starting_loc, int starting_y)
 // Parameters:    vector<vector<int>>
-//                int m, int q, int num of times, in start loc, in starting_y
-// Return value:
+//                int m, which is number of numbers to be multiplied
+//                int q, which is the modulus
+// Return value:  max product
 // Purpose:       to check values of the grid right to left (bottom half of grid)
 //******************************************************************************
-int check_diag_RL_Bot(vector<vector<int> > &M, int m, int q, int num_of_times, int starting_loc, int starting_y)
+int check_diag_RL_Bot(vector<vector<int> > &M, int m, int q)
 {
-  int tmp_size = M.size();
   int tmp_Diag_RL_Bot = 0;
-  int tmp_Diag_RL_Top = 0;
   int RL_Bottom_Max = 1;
-  int ver         = 0;
   int max         = 1;
-  int tmp        = 0;
+  int starting_y = 0;
 
-  for(int i = 0; i < num_of_times; i++)
+  for(int z = 0; z < M.size()/2; z++)
   {
-    for(int k = 0; k < m; k++)
+    for(int i = 0; i < M.size() - m + 1 - z; i++)
     {
-      tmp_Diag_RL_Bot = get_vector_Diag(M, k + ver + starting_y , -k + -ver + starting_loc,  q);
-      RL_Bottom_Max = calculate_mod_product(RL_Bottom_Max, tmp_Diag_RL_Bot, q);
-      max = determine_max(tmp, RL_Bottom_Max);
+      for(int k = 0; k < m; k++)
+      {
+        tmp_Diag_RL_Bot = get_vector_Diag(M, k + i + z, M.size() - 1 -k + -i,  q);
+        RL_Bottom_Max = calculate_mod_product(RL_Bottom_Max, tmp_Diag_RL_Bot, q);
+      }
+      max = determine_max(max, RL_Bottom_Max);
+      RL_Bottom_Max = 1;
     }
-    ver++;
-    RL_Bottom_Max = 1;
   }
   return max;
 }
 
 
 //******************************************************************************
-// Function:      check_diag_RL_Bottom(vector<vector<int> > M, int m, int q,
-//                int num of times, int starting_loc, int starting_y)
+// Function:      check_diag_RL_Bottom()
 // Parameters:    vector<vector<int>>
-//                int m, int q, int num of times, in start loc, in starting_y
-// Return value:
+//                int m, which is number of numbers to be multiplied
+//                int q, which is the modulus
+// Return value:  max product
 // Purpose:       to check values of the grid right to left (top  half of grid)
 //******************************************************************************
-int check_diag_RL_Top(vector<vector<int> > &M, int m, int q, int num_of_times, int starting_loc, int starting_y)
+int check_diag_RL_Top(vector<vector<int> > &M, int m, int q)
 {
-  int tmp_size = M.size();
   int tmp_Diag_RL_Top = 0;
   int RL_Top_Max = 1;
-  int ver         = 0;
-  int max         = 0;
+  int max         = 1;
+  int starting_y = 0;
 
-  for(int i = 0; i < num_of_times; i++)
+  for(int z = 0; z < M.size()/2; z++)
   {
-
-    for(int k = 0; k < m; k++)
+    for(int i = 0; i < M.size() - m + 1 - z; i++)
     {
-      tmp_Diag_RL_Top = get_vector_Diag(M, k + ver + (starting_y), -k + -ver + starting_loc, q);
-      RL_Top_Max = calculate_mod_product(RL_Top_Max, tmp_Diag_RL_Top, q);
+      for(int k = 0; k < m; k++)
+      {
+        tmp_Diag_RL_Top = get_vector_Diag(M, k + i, M.size() - 1 -k + -i - z,  q);
+        RL_Top_Max = calculate_mod_product(RL_Top_Max, tmp_Diag_RL_Top, q);
+      }
       max = determine_max(max, RL_Top_Max);
-
+      RL_Top_Max = 1;
     }
-    ver++;
-    RL_Top_Max = 1;
   }
   return max;
 }
@@ -312,18 +330,16 @@ int check_diag_RL_Top(vector<vector<int> > &M, int m, int q, int num_of_times, i
 
 // Main just calls the loops and functions nessary to run the program
 int main() {
+  // max value
   int max   = 1;
-  int times = 0;
-  int tmp = 0;
-  int num_of_times = 0;
 
+  // Tmp store values for each function call
   int tmp_LR = 1;
   int tmp_UD = 1;
-
   int tmp_Diag_LR_Top = 0;
   int tmp_Diag_LR_Bot = 0;
-  int tmp_Diag_RL_Bot_ = 0;
-  int tmp_Diag_RL_Top_ = 0;
+  int tmp_Diag_RL_Bot = 0;
+  int tmp_Diag_RL_Top = 0;
 
   int q;
   int m;
@@ -335,85 +351,37 @@ int main() {
   assert(line == "");
 
   M = read_M(cin);
-  //cout << M.size() << endl;
 
   // This for Loop prints the grid
   /*
   for (int i = 0; i < M.size(); i++)
   {
-
     for(int j = 0; j < M.size(); j++)
     {
       cout << M[i][j] << " ";
     }
     cout << endl;
   }
-
   cout << endl;
   */
 
-  //#pragma omp parallel
-
-  // this calulates the going in the rightward direction
-  for(int index = 0; index < M.size(); index++)
-  {
-    tmp_LR = check_LR(M, m, q, index);
-    max = determine_max(max, tmp_LR);
-  }
-
-  // this calulates the going in the downward direction
-  for(int index = 0; index < M.size(); index++)
-  {
-    tmp_UD = check_UD(M, m, q, index);
-    max = determine_max(max, tmp_UD);
-  }
+  // checking all directions of the matrix
+  tmp_LR = check_LR(M, m, q);
+  tmp_UD = check_UD(M, m, q);
+  tmp_Diag_LR_Bot = check_diag_LR_Bottom(M, m, q);
+  tmp_Diag_LR_Top = check_diag_LR_Top(M, m, q);
+  tmp_Diag_RL_Bot = check_diag_RL_Bot(M, m, q);
+  tmp_Diag_RL_Top = check_diag_RL_Top(M, m, q);
 
 
-  times = (M.size() - 1)/2;
-  num_of_times = M.size() - m + 1;
+  max = determine_max(max, tmp_LR);
+  max = determine_max(max, tmp_UD);
+  max = determine_max(max, tmp_Diag_LR_Bot);
+  max = determine_max(max, tmp_Diag_LR_Top);
+  max = determine_max(max, tmp_Diag_RL_Bot);
+  max = determine_max(max, tmp_Diag_RL_Top);
 
-  // this calulates the going in the left to right downward direction
-  // its also only the bottom half
-  for(int i = 0; i < times; i++)
-  {
-    tmp = num_of_times - i;
-    tmp_Diag_LR_Bot = check_diag_LR_Bottom(M, m, q, tmp, i);
-    max = determine_max(max, tmp_Diag_LR_Bot);
-  }
 
-  // this calulates the going in the left to right downward direction
-  // its also only the top half
-  for(int i = 1; i < times; i++)
-  {
-    tmp = num_of_times - i;
-    tmp_Diag_LR_Top = check_diag_LR_Top(M, m, q, tmp, i);
-    max = determine_max(max, tmp_Diag_LR_Top);
-  }
-
-  int starting_y = 0;
-  // this calulates the going in the right to left downward direction
-  // its also only the top half
-  for(int i = 0; i < times ; i++)
-  {
-    tmp = num_of_times - i;
-    int tmp2 = (M.size() -1);
-    tmp_Diag_RL_Top_ = check_diag_RL_Top(M, m, q, tmp, tmp2 - i, starting_y);
-    max = determine_max(max, tmp_Diag_RL_Top_);
-
-  }
-
-  starting_y = 0;
-  // this calulates the going in the right to left downward direction
-  // its also only the
-  for(int i = 0; i < times ; i++)
-  {
-    tmp = num_of_times - i;
-    int tmp2 = (M.size() -1);
-    tmp_Diag_RL_Bot_ = check_diag_RL_Bot(M, m, q, tmp, tmp2 - i, starting_y);
-    max = determine_max(max, tmp_Diag_RL_Bot_);
-  }
-
-  cout << "new max " << new_MAX << endl;
   cout << max << endl << "done" << endl;
 
 }
