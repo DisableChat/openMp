@@ -1,6 +1,7 @@
 //***************************************************************
 // File: Hamiltonian_Path.cc
-// Author: David W. Juedes
+// Author: Wesley Ryder
+//         David W. Juede's was the original author for the seq version
 // Purpose: This code finds whether there exists a Hamiltonian Path
 // from one vertex to another in a graph.
 //****************************************************************
@@ -15,9 +16,17 @@
 using namespace std;
 
 
-
+// declaring a global vector of ints
 vector<int> G_tour;
 
+
+
+//******************************************************************************
+// Function:      valid_tour()
+// Arguments:     vector<list<int> > adj_list
+//                vector<int> tour
+// Description:   Determines if tour is a valid tour
+//******************************************************************************
 bool valid_tour(vector<list<int> >&adj_list,
                 vector<int> &tour) {
   // Tests whether the tour is valid
@@ -43,15 +52,26 @@ bool valid_tour(vector<list<int> >&adj_list,
   return valid;
 }
 
-vector<int> Hamiltonian_tour(vector<list<int> >&adj_list, int i1, int j1, bool &found_it) {
 
+//******************************************************************************
+// Function:      Hamiltonian_tour()
+// Arguments:     vector<list<int> > adj_list
+//                int il
+//                int jl
+//                bool found_it
+// Description:   to check the permertations and if it finds a tour otherwise
+//                return no tour found
+//******************************************************************************
+vector<int> Hamiltonian_tour(vector<list<int> >&adj_list, int i1, int j1, bool &found_it) {
 
   int n = adj_list.size();
   vector<int> opt;
 
+  // setting up parallel so this will operate in parallel
   #pragma omp parallel
   {
     int j  = 0;
+    // each thread needs their version of permertations
     vector<int> perm;
 
     for (size_t i=0;i<n;i++) {
@@ -62,29 +82,37 @@ vector<int> Hamiltonian_tour(vector<list<int> >&adj_list, int i1, int j1, bool &
     bool t_found = false;
     int c = 0;
     do {
-      if(j % omp_get_num_threads() == omp_get_thread_num())
+      // Have thread I only check permertations j if j%p(num of threads) = I
+      if((j % omp_get_num_threads()) == omp_get_thread_num())
       {
-      vector<int> tour;
-      tour.resize(n);
-      tour[0] = i1;
-      tour[n-1] = j1;
-        for (int i=0;i<n-2;i++) {
-          tour[i+1] = perm[i];
+        vector<int> tour;
+        tour.resize(n);
+        tour[0] = i1;
+        tour[n-1] = j1;
+          for (int i=0;i<n-2;i++) {
+            tour[i+1] = perm[i];
+          }
+          bool found;
+          found = valid_tour(adj_list,tour);
+          if (found) {
+            found_it=true;
+            G_tour = tour;
+          }
         }
-        bool found;
-        found = valid_tour(adj_list,tour);
-        if (found) {
-          found_it=true;
-          G_tour = tour;
-        }
-      }
-      j++;
-      //found_it = false;
-    }  while (next_permutation(perm.begin(),perm.end()));
-  }
+        j++;
+        //found_it = false;
+      }while (next_permutation(perm.begin(),perm.end()) && found_it == false);
+    }
+  // return the G_tour
   return G_tour;
 }
 
+
+//******************************************************************************
+// Function:      main()
+// Arguments:     None:
+// Description:   To run the main of the program
+//******************************************************************************
 int main() {
   int n;
   int i1;
